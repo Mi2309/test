@@ -37,14 +37,22 @@ jobs:
         run: |
           echo "Reading files from commit: ${{ github.event.inputs.commit_sha }} "
           git show --name-only ${{ github.event.inputs.commit_sha }}
-      - name: Show file contents
+      - name: Read Files from Repository Root
         run: |
-          echo "===== f1.txt ====="
-          cat f1.txt || echo "⚠️ f1.txt not found"
-          echo "===== f2.txt ====="
-          cat f2.txt || echo "⚠️ f2.txt not found"
-          echo "===== f3.txt ====="
-          cat f3.txt || echo "⚠️ f3.txt not found"
+          echo "Reading files from commit: ${{ github.event.inputs.commit_sha }}"
+          cd $GITHUB_WORKSPACE
+          echo "Current directory: $(pwd)"
+          echo "Contents:"
+          ls -al
+      
+          for f in f1.txt f2.txt f3.txt; do
+            echo "===== $f ====="
+            if [ -f "$f" ]; then
+              cat "$f"
+            else
+              echo "⚠️ $f not found"
+            fi
+          done
 
   build2:
     name: 🚀 Build 2 - Summary
