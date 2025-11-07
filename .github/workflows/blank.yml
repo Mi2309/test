@@ -34,7 +34,8 @@ jobs:
           git checkout ${{ github.event.inputs.commit_sha }}
 
       - name: Display commit info
-        run: echo "Reading files from commit: ${{ github.event.inputs.commit_sha }}"
+        run: |
+          echo "Reading files from commit: ${{ github.event.inputs.commit_sha }} "
 
       - name: Show file contents
         run: |
