@@ -12,25 +12,73 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      username:
+        description: "Enter your username"
+        required: true
+        default: "guest_user"
+      environment:
+        description: "Select environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+        default: dev
+      enableFeatureX:
+        description: "Enable Feature X?"
+        required: false
+        type: boolean
+        default: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  build1:
+    name: 🏗️ Build Stage 1
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Display variables
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          echo "Username: ${{ github.event.inputs.username }}"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Feature X Enabled: ${{ github.event.inputs.enableFeatureX }}"
+
+      - name: Simulate build
+        run: |
+          echo "Starting Build Stage 1..."
+          sleep 2
+          echo "✅ Build Stage 1 completed."
+
+  build2:
+    name: 🚀 Build Stage 2
+    runs-on: ubuntu-latest
+    needs: build1  # depends on build1 completion
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use variables in environment
+        env:
+          USERNAME: ${{ github.event.inputs.username }}
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+          FEATURE_X: ${{ github.event.inputs.enableFeatureX }}
+        run: |
+          echo "Running Build Stage 2 for $USERNAME"
+          echo "Deploying to environment: $ENVIRONMENT"
+          if [ "$FEATURE_X" = "true" ]; then
+            echo "Feature X is enabled!"
+          else
+            echo "Feature X is disabled."
+          fi
+
+      - name: Simulate deployment
+        run: |
+          echo "Deploying application..."
+          sleep 2
+          echo "✅ Deployment complete."
