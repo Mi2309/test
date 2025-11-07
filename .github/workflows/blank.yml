@@ -1,22 +1,12 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+  # Disable auto triggers; allow only manual trigger
   workflow_dispatch:
     inputs:
-      username:
-        description: "Enter your username"
+      commit_sha:
+        description: "Enter the commit SHA to fetch file contents"
         required: true
-        default: "guest_user"
       environment:
         description: "Select environment"
         required: true
@@ -26,59 +16,44 @@ on:
           - test
           - prod
         default: dev
-      enableFeatureX:
-        description: "Enable Feature X?"
-        required: false
-        type: boolean
-        default: false
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build1:
-    name: 🏗️ Build Stage 1
+    name: 🏗️ Build 1 - Fetch Files
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository at specific commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit_sha }}
 
-      - name: Display variables
+      - name: Show environment and commit info
         run: |
-          echo "Username: ${{ github.event.inputs.username }}"
           echo "Environment: ${{ github.event.inputs.environment }}"
-          echo "Feature X Enabled: ${{ github.event.inputs.enableFeatureX }}"
+          echo "Commit SHA: ${{ github.event.inputs.commit_sha }}"
 
-      - name: Simulate build
+      - name: Display contents of files
         run: |
-          echo "Starting Build Stage 1..."
-          sleep 2
-          echo "✅ Build Stage 1 completed."
+          echo "===== f1.txt ====="
+          cat f1.txt
+          echo "===== f2.txt ====="
+          cat f2.txt
+          echo "===== f3.txt ====="
+          cat f3.txt
 
   build2:
-    name: 🚀 Build Stage 2
+    name: 🚀 Build 2 - Post Process
     runs-on: ubuntu-latest
-    needs: build1  # depends on build1 completion
+    needs: build1
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository at specific commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit_sha }}
 
-      - name: Use variables in environment
-        env:
-          USERNAME: ${{ github.event.inputs.username }}
-          ENVIRONMENT: ${{ github.event.inputs.environment }}
-          FEATURE_X: ${{ github.event.inputs.enableFeatureX }}
+      - name: Print summary
         run: |
-          echo "Running Build Stage 2 for $USERNAME"
-          echo "Deploying to environment: $ENVIRONMENT"
-          if [ "$FEATURE_X" = "true" ]; then
-            echo "Feature X is enabled!"
-          else
-            echo "Feature X is disabled."
-          fi
-
-      - name: Simulate deployment
-        run: |
-          echo "Deploying application..."
-          sleep 2
-          echo "✅ Deployment complete."
+          echo "✅ Successfully read files from commit ${{ github.event.inputs.commit_sha }}"
+          echo "Environment: ${{ github.event.inputs.environment }}"
