@@ -36,7 +36,7 @@ jobs:
       - name: Display commit info
         run: |
           echo "Reading files from commit: ${{ github.event.inputs.commit_sha }} "
-
+          git show --name-only ${{ github.event.inputs.commit_sha }}
       - name: Show file contents
         run: |
           echo "===== f1.txt ====="
