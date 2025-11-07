@@ -19,41 +19,42 @@ on:
 
 jobs:
   build1:
-    name: 🏗️ Build 1 - Fetch Files
+    name: 🏗️ Build 1 - Fetch Files from Commit
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository at specific commit
+      - name: Checkout main branch at specific commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.commit_sha }}
+          ref: main
 
-      - name: Show environment and commit info
+      - name: Switch to specific commit
         run: |
-          echo "Environment: ${{ github.event.inputs.environment }}"
-          echo "Commit SHA: ${{ github.event.inputs.commit_sha }}"
+          git fetch origin ${{ github.event.inputs.commit_sha }}
+          git checkout ${{ github.event.inputs.commit_sha }}
 
-      - name: Display contents of files
+      - name: Display commit info
+        run: echo "Reading files from commit: ${{ github.event.inputs.commit_sha }}"
+
+      - name: Show file contents
         run: |
           echo "===== f1.txt ====="
-          cat f1.txt
+          cat f1.txt || echo "⚠️ f1.txt not found"
           echo "===== f2.txt ====="
-          cat f2.txt
+          cat f2.txt || echo "⚠️ f2.txt not found"
           echo "===== f3.txt ====="
-          cat f3.txt
+          cat f3.txt || echo "⚠️ f3.txt not found"
 
   build2:
-    name: 🚀 Build 2 - Post Process
+    name: 🚀 Build 2 - Summary
     runs-on: ubuntu-latest
     needs: build1
 
     steps:
-      - name: Checkout repository at specific commit
+      - name: Checkout main branch at same commit
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.commit_sha }}
 
-      - name: Print summary
-        run: |
-          echo "✅ Successfully read files from commit ${{ github.event.inputs.commit_sha }}"
-          echo "Environment: ${{ github.event.inputs.environment }}"
+      - name: Summary
+        run: echo "✅ Files read successfully from commit ${{ github.event.inputs.commit_sha }}"
