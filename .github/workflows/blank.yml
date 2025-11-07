@@ -45,7 +45,7 @@ jobs:
           echo "Contents:"
           ls -al
       
-          for f in f1.txt f2.txt f3.txt; do
+          for f in f1.txt.txt f2.txt.txt f3.txt.txt; do
             echo "===== $f ====="
             if [ -f "$f" ]; then
               cat "$f"
