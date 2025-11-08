@@ -9,7 +9,10 @@ on:
       commit_sha:
         description: "Enter the commit SHA from which to restore the file"
         required: true
-
+        
+permissions:
+  contents: write
+  
 jobs:
   rollback:
     name: 🔄 Rollback File to Previous Commit
