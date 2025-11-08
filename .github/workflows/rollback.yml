@@ -1,0 +1,51 @@
+name: Rollback File
+
+on:
+  workflow_dispatch:
+    inputs:
+      file_name:
+        description: "Enter the file name to rollback (e.g. f1.txt)"
+        required: true
+      commit_sha:
+        description: "Enter the commit SHA from which to restore the file"
+        required: true
+
+jobs:
+  rollback:
+    name: 🔄 Rollback File to Previous Commit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0  # needed to access full commit history
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Rollback specific file
+        run: |
+          FILE=${{ github.event.inputs.file_name }}
+          COMMIT=${{ github.event.inputs.commit_sha }}
+
+          echo "Rolling back $FILE to commit $COMMIT"
+          
+          # Check out the file from that specific commit
+          git checkout $COMMIT -- "$FILE"
+
+          echo "✅ File content after rollback:"
+          cat "$FILE"
+
+      - name: Commit and push rollback
+        env:
+          FILE_NAME: ${{ github.event.inputs.file_name }}
+          COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
+        run: |
+          git add "$FILE_NAME"
+          git commit -m "Rollback $FILE_NAME to commit $COMMIT_SHA"
+          git push origin main
+
